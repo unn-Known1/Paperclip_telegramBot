@@ -3,7 +3,8 @@
 import asyncio
 import logging
 
-from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 
 from i18n import get_strings

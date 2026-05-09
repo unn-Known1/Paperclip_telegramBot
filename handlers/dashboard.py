@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import logging
 
-from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 
 from middleware.auth import restricted

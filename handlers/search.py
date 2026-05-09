@@ -2,7 +2,8 @@
 
 import logging
 
-from telegram import ChatAction, Update
+from telegram import Update
+from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 
 from i18n import get_strings

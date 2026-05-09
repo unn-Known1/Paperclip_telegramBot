@@ -4,13 +4,13 @@
 from __future__ import annotations
 
 from telegram import (
-    ChatAction,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
     ReplyKeyboardMarkup,
     Update,
 )
+from telegram.constants import ChatAction
 from telegram.ext import ContextTypes
 
 from i18n import get_strings
