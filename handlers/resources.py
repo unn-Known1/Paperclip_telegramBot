@@ -25,12 +25,14 @@ async def environments(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     items = await client.list_environments()
 
     if not items:
-        await update.message.reply_text(s.no_environments)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_environments)
         return
 
     context.user_data["envs_cache"] = items
     text, keyboard = paginate(items, page=0, prefix="envs", formatter=format_environment)
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def envs_pagination_callback(
@@ -62,7 +64,8 @@ async def members(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     items = data if isinstance(data, list) else data.get("members", data.get("data", []))
 
     if not items:
-        await update.message.reply_text(s.no_members)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_members)
         return
 
     text = "\n\n".join(format_member(m) for m in items)
@@ -82,7 +85,8 @@ async def invites(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     items = data if isinstance(data, list) else data.get("invites", data.get("data", []))
 
     if not items:
-        await update.message.reply_text(s.no_invites)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_invites)
         return
 
     text = "\n\n".join(format_invite(i) for i in items)

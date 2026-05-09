@@ -25,12 +25,14 @@ async def projects(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     items = await client.list_projects()
 
     if not items:
-        await update.message.reply_text(s.no_projects)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_projects)
         return
 
     context.user_data["projects_cache"] = items
     text, keyboard = paginate(items, page=0, prefix="projects", formatter=format_project)
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def projects_pagination_callback(

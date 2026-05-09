@@ -46,7 +46,9 @@ EN = Strings(
         "/notify — Notification settings\n\n"
         "<b>🔧 Admin</b>\n"
         "/stats — Bot statistics\n"
-        "/broadcast — Message all users\n\n"
+        "/broadcast — Message all users\n"
+        "/explore — Explore bot directory\n"
+        "/activities — Live activity logs\n\n"
         "💡 <i>You can also type naturally like</i> "
         '"show me critical bugs" <i>or search inline with</i> '
         "<code>@botname query</code>"

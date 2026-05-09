@@ -63,12 +63,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 issue = await client.get_issue(issue_id)
                 text = format_issue_detail(issue)
                 keyboard = _issue_action_keyboard(issue_id)
-                await update.message.reply_text(
-                    text, parse_mode="HTML",
-                    reply_markup=keyboard,
-                )
+                if update.effective_message:
+                    await update.effective_message.reply_text(
+                        text, parse_mode="HTML",
+                        reply_markup=keyboard,
+                    )
             except Exception:
-                await update.message.reply_text(s.update_issue_not_found)
+                if update.effective_message:
+                    await update.effective_message.reply_text(s.update_issue_not_found)
             return
 
     # --- First-time onboarding ---
@@ -93,13 +95,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ],
         ]
     )
-    await update.message.reply_text(
-        s.welcome, parse_mode="HTML",
-        reply_markup=REPLY_KEYBOARD,
-    )
-    await update.message.reply_text(
-        "Quick actions:", reply_markup=inline_keyboard,
-    )
+    if update.effective_message:
+        await update.effective_message.reply_text(
+            s.welcome, parse_mode="HTML",
+            reply_markup=REPLY_KEYBOARD,
+        )
+        await update.effective_message.reply_text(
+            "Quick actions:", reply_markup=inline_keyboard,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +117,8 @@ async def _onboarding_step1(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             InlineKeyboardButton("Skip ⏭", callback_data="onboard:done"),
         ]]
     )
-    await update.message.reply_text(s.onboarding_step1, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(s.onboarding_step1, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def onboarding_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -239,9 +243,10 @@ async def notify(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ],
         ]
     )
-    await update.message.reply_text(
-        s.notify_usage.format(status=status), parse_mode="HTML", reply_markup=keyboard,
-    )
+    if update.effective_message:
+        await update.effective_message.reply_text(
+            s.notify_usage.format(status=status), parse_mode="HTML", reply_markup=keyboard,
+        )
 
 
 async def notify_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

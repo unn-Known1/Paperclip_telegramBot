@@ -50,7 +50,8 @@ async def issues(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     items = await client.list_issues(status=status, priority=priority)
 
     if not items:
-        await update.message.reply_text(s.no_issues)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_issues)
         return
 
     # Store full list for pagination
@@ -69,9 +70,10 @@ async def issues(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if keyboard:
         rows.extend(keyboard.inline_keyboard)
 
-    await update.message.reply_text(
-        text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(rows)
-    )
+    if update.effective_message:
+        await update.effective_message.reply_text(
+            text, parse_mode="HTML", reply_markup=InlineKeyboardMarkup(rows)
+        )
 
 
 async def issues_pagination_callback(
@@ -157,7 +159,8 @@ async def create_issue_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
     keyboard = InlineKeyboardMarkup(
         [[InlineKeyboardButton(f"❌ {s.cancel}", callback_data="create:cancel")]]
     )
-    await update.message.reply_text(s.create_title_prompt, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(s.create_title_prompt, parse_mode="HTML", reply_markup=keyboard)
     return TITLE
 
 
@@ -173,7 +176,8 @@ async def create_title(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             ]
         ]
     )
-    await update.message.reply_text(s.create_desc_prompt, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(s.create_desc_prompt, parse_mode="HTML", reply_markup=keyboard)
     return DESCRIPTION
 
 
@@ -378,7 +382,8 @@ async def update_issue_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
     s = get_strings()
     args = context.args or []
     if not args:
-        await update.message.reply_text(s.update_usage, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.update_usage, parse_mode="HTML")
         return ConversationHandler.END
 
     issue_id = args[0]
@@ -386,7 +391,8 @@ async def update_issue_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
     try:
         issue = await client.get_issue(issue_id)
     except Exception:
-        await update.message.reply_text(s.update_issue_not_found)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.update_issue_not_found)
         return ConversationHandler.END
 
     context.user_data["update_issue"] = {"id": issue_id, "current": issue}
@@ -405,7 +411,8 @@ async def update_issue_start(update: Update, context: ContextTypes.DEFAULT_TYPE)
             [InlineKeyboardButton(f"❌ {s.cancel}", callback_data="upd:cancel")],
         ]
     )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
     return UPD_FIELD
 
 

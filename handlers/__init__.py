@@ -20,7 +20,7 @@ from handlers.issues import (
 from handlers.projects import projects, projects_pagination_callback
 from handlers.agents import agents, agents_pagination_callback
 from handlers.resources import environments, envs_pagination_callback, invites, members
-from handlers.admin import broadcast, stats
+from handlers.admin import broadcast, stats, explore_folder, activities
 from handlers.digest import schedule_digest
 from handlers.inline import inline_query
 from handlers.dashboard import dashboard, dashboard_refresh_callback, dashboard_pin_callback
@@ -68,7 +68,8 @@ async def handle_message(update, context):
     intent = parse_intent(text)
     if not intent:
         s = get_strings()
-        await update.message.reply_text(s.nlp_no_match, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.nlp_no_match, parse_mode="HTML")
         return
 
     # Dispatch based on parsed intent
@@ -91,7 +92,8 @@ async def handle_message(update, context):
         await handler(update, context, intent.filters)
     else:
         s = get_strings()
-        await update.message.reply_text(s.nlp_no_match, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.nlp_no_match, parse_mode="HTML")
 
 
 async def _nlp_list_issues(update, context, nlp_filters):
@@ -104,19 +106,22 @@ async def _nlp_list_issues(update, context, nlp_filters):
         priority=nlp_filters.get("priority"),
     )
     if not items:
-        await update.message.reply_text(s.no_issues)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_issues)
         return
     context.user_data["issues_cache"] = items
     text, keyboard = paginate(items, page=0, prefix="issues", formatter=format_issue)
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def _nlp_create_hint(update, context, _filters=None):
     """Hint the user to use /create_issue."""
-    await update.message.reply_text(
-        "💡 Use /create_issue to start the issue creation wizard.",
-        parse_mode="HTML",
-    )
+    if update.effective_message:
+        await update.effective_message.reply_text(
+            "💡 Use /create_issue to start the issue creation wizard.",
+            parse_mode="HTML",
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +218,8 @@ def register_handlers(application: Application) -> None:
     # Admin commands
     application.add_handler(CommandHandler("stats", stats))
     application.add_handler(CommandHandler("broadcast", broadcast))
+    application.add_handler(CommandHandler("explore", explore_folder))
+    application.add_handler(CommandHandler("activities", activities))
 
     # Callback queries
     application.add_handler(CallbackQueryHandler(issues_pagination_callback, pattern=r"^issues:page:"))

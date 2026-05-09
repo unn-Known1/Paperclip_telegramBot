@@ -27,7 +27,8 @@ async def close_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     s = get_strings()
     args = context.args or []
     if not args:
-        await update.message.reply_text(s.close_usage, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.close_usage, parse_mode="HTML")
         return
 
     issue_id = args[0]
@@ -46,11 +47,13 @@ async def close_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             [[InlineKeyboardButton(s.undo_prompt, callback_data=f"undo:status:{issue_id}")]]
         )
 
-        msg = await update.message.reply_text(
-            s.close_success.format(details=format_issue_detail(result)),
-            parse_mode="HTML",
-            reply_markup=keyboard,
-        )
+        msg = update.effective_message
+        if msg:
+            await msg.reply_text(
+                s.close_success.format(details=format_issue_detail(result)),
+                parse_mode="HTML",
+                reply_markup=keyboard,
+            )
 
         # Remove undo button after 30s
         async def remove_undo(ctx: ContextTypes.DEFAULT_TYPE):
@@ -65,7 +68,8 @@ async def close_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             context.job_queue.run_once(remove_undo, 30, chat_id=msg.chat_id)
 
     except Exception:
-        await update.message.reply_text(s.update_issue_not_found)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.update_issue_not_found)
 
 
 @restricted
@@ -77,7 +81,8 @@ async def reopen_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     s = get_strings()
     args = context.args or []
     if not args:
-        await update.message.reply_text(s.reopen_usage, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.reopen_usage, parse_mode="HTML")
         return
 
     issue_id = args[0]
@@ -94,11 +99,13 @@ async def reopen_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             [[InlineKeyboardButton(s.undo_prompt, callback_data=f"undo:status:{issue_id}")]]
         )
 
-        msg = await update.message.reply_text(
-            s.reopen_success.format(details=format_issue_detail(result)),
-            parse_mode="HTML",
-            reply_markup=keyboard,
-        )
+        msg = update.effective_message
+        if msg:
+            await msg.reply_text(
+                s.reopen_success.format(details=format_issue_detail(result)),
+                parse_mode="HTML",
+                reply_markup=keyboard,
+            )
 
         async def remove_undo(ctx: ContextTypes.DEFAULT_TYPE):
             try:
@@ -112,7 +119,8 @@ async def reopen_issue(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             context.job_queue.run_once(remove_undo, 30, chat_id=msg.chat_id)
 
     except Exception:
-        await update.message.reply_text(s.update_issue_not_found)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.update_issue_not_found)
 
 
 @restricted
@@ -127,7 +135,8 @@ async def close_all(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         open_issues = await client.list_issues(status="open")
         if not open_issues:
-            await update.message.reply_text(s.bulk_close_usage)
+            if update.effective_message:
+                await update.effective_message.reply_text(s.bulk_close_usage)
             return
 
         context.user_data["bulk_close_ids"] = [i["id"] for i in open_issues]
@@ -140,14 +149,16 @@ async def close_all(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 ]
             ]
         )
-        await update.message.reply_text(
-            s.bulk_close_confirm.format(count=len(open_issues)),
-            parse_mode="HTML",
-            reply_markup=keyboard,
-        )
+        if update.effective_message:
+            await update.effective_message.reply_text(
+                s.bulk_close_confirm.format(count=len(open_issues)),
+                parse_mode="HTML",
+                reply_markup=keyboard,
+            )
     except Exception as e:
         logger.error("Error fetching open issues: %s", e)
-        await update.message.reply_text(s.error_generic)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.error_generic)
 
 
 async def bulk_close_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

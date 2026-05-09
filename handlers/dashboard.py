@@ -103,7 +103,8 @@ async def dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             ]
         ]
     )
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def dashboard_refresh_callback(

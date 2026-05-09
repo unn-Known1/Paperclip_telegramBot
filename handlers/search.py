@@ -26,7 +26,8 @@ async def search_issues(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     s = get_strings()
     args = context.args or []
     if not args:
-        await update.message.reply_text(s.search_prompt, parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(s.search_prompt, parse_mode="HTML")
         return
 
     query_text = " ".join(args).lower()
@@ -42,14 +43,17 @@ async def search_issues(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         ][:20]  # Show top 20
         
         if not matches:
-            await update.message.reply_text(
-                s.search_no_results.format(query=query_text), parse_mode="HTML"
-            )
+            if update.effective_message:
+                await update.effective_message.reply_text(
+                    s.search_no_results.format(query=query_text), parse_mode="HTML"
+                )
             return
             
         header = s.search_results_header.format(query=query_text)
         body = "\n\n".join(format_issue(i) for i in matches)
-        await update.message.reply_text(f"{header}{body}", parse_mode="HTML")
+        if update.effective_message:
+            await update.effective_message.reply_text(f"{header}{body}", parse_mode="HTML")
     except Exception as e:
         logger.error("Search failed: %s", e)
-        await update.message.reply_text(s.error_generic)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.error_generic)

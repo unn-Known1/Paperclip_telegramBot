@@ -24,12 +24,15 @@ async def agents(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     items = await client.list_agents()
 
     if not items:
-        await update.message.reply_text(s.no_agents)
+        if update.effective_message:
+            await update.effective_message.reply_text(s.no_agents)
         return
 
     context.user_data["agents_cache"] = items
+
     text, keyboard = paginate(items, page=0, prefix="agents", formatter=format_agent)
-    await update.message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
+    if update.effective_message:
+        await update.effective_message.reply_text(text, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def agents_pagination_callback(
