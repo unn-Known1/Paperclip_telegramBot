@@ -3,6 +3,8 @@
 from html import escape
 from typing import Any
 
+from utils.timestamps import relative_time
+
 # ---------------------------------------------------------------------------
 # Emoji maps
 # ---------------------------------------------------------------------------
@@ -42,13 +44,14 @@ def format_issue(issue: dict) -> str:
     status = (issue.get("status") or "unknown").lower()
     priority = (issue.get("priority") or "none").lower()
     issue_id = _e(issue.get("id"))
+    created = relative_time(issue.get("createdAt") or issue.get("created_at"))
 
     s_emoji = STATUS_EMOJI.get(status, "❓")
     p_emoji = PRIORITY_EMOJI.get(priority, "⚪")
 
     return (
         f"{s_emoji} <b>{title}</b>\n"
-        f"   {p_emoji} {_e(priority.capitalize())} │ {_e(status.capitalize())}\n"
+        f"   {p_emoji} {_e(priority.capitalize())} │ {_e(status.capitalize())} │ 🕐 {created}\n"
         f"   🆔 <code>{issue_id}</code>"
     )
 
@@ -64,12 +67,17 @@ def format_issue_detail(issue: dict) -> str:
     s_emoji = STATUS_EMOJI.get(status, "❓")
     p_emoji = PRIORITY_EMOJI.get(priority, "⚪")
 
+    created = relative_time(issue.get("createdAt") or issue.get("created_at"))
+    updated = relative_time(issue.get("updatedAt") or issue.get("updated_at"))
+
     lines = [
         f"📋 <b>{title}</b>",
         "",
         f"{s_emoji} Status: {_e(status.capitalize())}",
         f"{p_emoji} Priority: {_e(priority.capitalize())}",
         f"🆔 ID: <code>{issue_id}</code>",
+        f"🕐 Created: {created}",
+        f"🔄 Updated: {updated}",
         "",
         f"📝 {desc}",
     ]
